@@ -31,4 +31,8 @@ run: all
 clean:
 	rm -rf $(BUILD_DIR)
 
+cipher: all
+	printf '%s\n' '#!/bin/sh' 'exec java -cp build Cipher "$$@"' > cipher
+	chmod +x cipher
+
 .PHONY: all run clean
