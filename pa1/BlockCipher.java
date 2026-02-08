@@ -1,5 +1,3 @@
-package Ciphers;
-
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
 import java.io.File;
@@ -10,11 +8,44 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.Arrays;
 
-public class BlockCipher {
+public class BlockCipher implements CipherParent {
 
     public static final int BLOCK_SIZE_BYTES = 16;
     public static final byte PAD = (byte) 0x81;
     private final byte[] key;
+
+    public void run(File inputFile, String outputFilePath, String modeOfOperation) {
+        // ensure output exists for both e and d modes
+        File outputFile = new File(outputFilePath);
+        File parent = outputFile.getParentFile();
+        try {
+            if (parent != null && !parent.exists()){
+                throw new IOException("Failed to create output directory: " + parent.getAbsolutePath());
+            }
+            if (!outputFile.exists()) {
+                if (!outputFile.createNewFile()) {
+                    throw new IOException("Failed to create output file: " + outputFile.getAbsolutePath());
+                }
+            }
+            
+        } catch (Exception e) {
+            System.err.println("Error: something went wrong ensuring outputt file exists for both modes: e and d");
+        }
+        if (modeOfOperation.equals("E")) {
+            try {
+                this.encryptFile(inputFile, outputFile);
+            } catch (Exception e) {
+                System.err.println("Error: Block Cipher Run Encryption" + "\n" + "Message: " + e.getMessage());
+            }
+        } else if (modeOfOperation.equals("D")) {
+            try {
+                this.decryptFile(inputFile, outputFile);
+            } catch (Exception e) {
+                System.err.println("Error: Block Cipher Run Decryption" + "\n" + "Message: " + e.getMessage());
+            }
+
+        }
+    }
 
     public BlockCipher(File keyFile) throws IOException {
         this.key = loadKey(keyFile);
@@ -37,7 +68,8 @@ public class BlockCipher {
                 Arrays.fill(block, (byte) 0);
             }
         } catch (Exception e) {
-            // TODO: handle exception
+            System.err.println("Error encrypting input file contents");
+            System.exit(1);
         }
 
     }
