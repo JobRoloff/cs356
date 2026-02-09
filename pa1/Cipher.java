@@ -9,7 +9,7 @@ class Cipher {
         }
 
         String cipherType = args[0];
-        if (!cipherType.equals("B") && !cipherType.equals("C")) {
+        if (!cipherType.equals("B") && !cipherType.equals("S")) {
             System.err.print("Invalid Function Type");
             System.exit(1);
         }

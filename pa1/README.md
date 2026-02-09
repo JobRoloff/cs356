@@ -36,7 +36,7 @@ cp b-e-output.txt b-d-input.txt
 test: empty file
 ```bash
 ./cipher B b-e-input-2.txt b-e-output-2.txt b-e-key.txt E
-cp b-e-output-2.txt b-d-input-2.txt
+# emptty file so you don't need to copy anyttihng over
 ./cipher B b-d-input-2.txt b-d-output-2.txt b-e-key.txt D
 ```
 
@@ -55,9 +55,9 @@ cp s-e-output.txt s-d-input.txt
 ./cipher S s-d-input.txt s-d-output.txt s-e-key.txt D
 ```
 
-test: key that's bigger than 16 bytes
+test: trailing whitespace is preserved
 ```bash
-./cipher S s-e-input-3.txt s-e-output-3.txt s-e-key.txt E
-cp s-e-output-3.txt s-d-input-3.txt
-./cipher S s-d-input-3.txt s-d-output-3.txt s-e-key.txt D
+./cipher S s-e-input-2.txt s-e-output-2.txt s-e-key.txt E
+cp s-e-output-2.txt s-d-input-2.txt
+./cipher S s-d-input-2.txt s-d-output-2.txt s-e-key.txt D
 ```

@@ -6,7 +6,7 @@ import java.io.File;
 public class CipherManager {
     public void run(String cipherType, File inputFile, String outputFilePath, File keyFile, String modeOfOperation) {
 
-        CipherParent cipher = null;
+        ICipher cipher = null;
 
         if (cipherType.equals("B")) {
             try {
@@ -15,8 +15,14 @@ public class CipherManager {
                 System.err.println("Cipher Manager Block Error: ");
                 e.printStackTrace();
             }
-        } else {
-
+        } else if (cipherType.equals("S")) {
+            try {
+                cipher = new StreamCipher(keyFile);
+            } catch (Exception e) {
+                System.err.println("Cipher Manager Block Error: ");
+                e.printStackTrace();
+            }
+        
         }
         cipher.run(inputFile, outputFilePath, modeOfOperation);
     }

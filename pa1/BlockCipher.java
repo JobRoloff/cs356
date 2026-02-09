@@ -8,47 +8,47 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.Arrays;
 
-public class BlockCipher implements CipherParent {
+public class BlockCipher implements ICipher {
 
     public static final int BLOCK_SIZE_BYTES = 16;
     public static final byte PAD = (byte) 0x81;
+    private final File keyFile;
     private final byte[] key;
 
+    public BlockCipher(File keyFile) throws IOException {
+        this.keyFile = keyFile;
+        this.key = readAllKeyBytesExact(BLOCK_SIZE_BYTES);
+    }
+
+    @Override
+    public File getKeyFile() {
+        return keyFile;
+    }
+
+    @Override
     public void run(File inputFile, String outputFilePath, String modeOfOperation) {
-        // ensure output exists for both e and d modes
         File outputFile = new File(outputFilePath);
-        File parent = outputFile.getParentFile();
         try {
-            if (parent != null && !parent.exists()){
-                throw new IOException("Failed to create output directory: " + parent.getAbsolutePath());
-            }
-            if (!outputFile.exists()) {
-                if (!outputFile.createNewFile()) {
-                    throw new IOException("Failed to create output file: " + outputFile.getAbsolutePath());
-                }
-            }
-            
-        } catch (Exception e) {
+            ensureFileExists(outputFile);
+        } catch (IOException e) {
             System.err.println("Error: something went wrong ensuring outputt file exists for both modes: e and d");
         }
-        if (modeOfOperation.equals("E")) {
+
+        if (isEncrypt(modeOfOperation)) {
             try {
-                this.encryptFile(inputFile, outputFile);
+                encryptFile(inputFile, outputFile);
             } catch (Exception e) {
                 System.err.println("Error: Block Cipher Run Encryption" + "\n" + "Message: " + e.getMessage());
             }
-        } else if (modeOfOperation.equals("D")) {
+        } else if (isDecrypt(modeOfOperation)) {
             try {
-                this.decryptFile(inputFile, outputFile);
+                decryptFile(inputFile, outputFile);
             } catch (Exception e) {
                 System.err.println("Error: Block Cipher Run Decryption" + "\n" + "Message: " + e.getMessage());
             }
-
+        } else{
+            System.err.println("Error: unknown mode of operation" + modeOfOperation);
         }
-    }
-
-    public BlockCipher(File keyFile) throws IOException {
-        this.key = loadKey(keyFile);
     }
 
     public void encryptFile(File inputFile, File outputFile) throws IOException {
@@ -117,27 +117,6 @@ public class BlockCipher implements CipherParent {
             System.err.println("Decrypt File Exception: " + e);
             e.printStackTrace();
         }
-    }
-
-    private static byte[] loadKey(File keyFile) throws IOException {
-        byte[] key = new byte[BLOCK_SIZE_BYTES];
-        try (
-                InputStream in = new BufferedInputStream(new FileInputStream(keyFile))) {
-            // read key's blocks
-            int keyBlockSize = readBlock(in, key);
-
-            // handle too short key
-            if (keyBlockSize != BLOCK_SIZE_BYTES)
-                throw new IOException("Key must be 16 bytes.");
-            // handle too long key
-            if (in.read() != -1)
-                throw new IOException("Key is too long, it must be exactly 16 bytes.");
-
-        } catch (Exception e) {
-            System.err.println("LoadKey Exception: " + e);
-            e.printStackTrace();
-        }
-        return key;
     }
 
     /**
